@@ -6,13 +6,13 @@ const initialItems = [
 ];
 
 function App() {
-	const [items, setItems] = useState([]);
+	const [items, setItems] = useState(initialItems);
 
 	return (
 		<div className='app'>
 			<Logo />
 			<Form setItems={setItems} />
-			<PackingList items={items} />
+			<PackingList items={items} setItems={setItems} />
 			<Stats />
 		</div>
 	);
@@ -73,25 +73,42 @@ function Form({ setItems }) {
 	);
 }
 
-function PackingList({ items }) {
+function PackingList({ items, setItems }) {
 	return (
 		<div className='list'>
 			<ul>
 				{items.map((item, idx) => (
-					<Item key={idx} {...item} />
+					<Item key={idx} {...item} setItems={setItems} />
 				))}
 			</ul>
 		</div>
 	);
 }
 
-function Item({ description, quantity, packed }) {
+function Item({ description, quantity, packed, id, setItems }) {
+	function handleDeleteItem(id) {
+		setItems((prev) => prev.filter((el) => el.id !== id));
+	}
+
+	function handleCheckboxChange(id) {
+		setItems((prev) =>
+			prev.map((el) =>
+				el.id === id ? { ...el, packed: !el.packed } : el
+			)
+		);
+	}
+
 	return (
 		<li>
+			<input
+				type='checkbox'
+				checked={packed}
+				onChange={() => handleCheckboxChange(id)}
+			/>
 			<span style={packed ? { textDecoration: 'line-through' } : {}}>
 				{description} {quantity}
 			</span>
-			<button>❌</button>
+			<button onClick={() => handleDeleteItem(id)}>❌</button>
 		</li>
 	);
 }
